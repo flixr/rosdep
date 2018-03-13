@@ -165,7 +165,8 @@ def dpkg_detect(pkgs, exec_fn=None):
         else:
             version_lock_map[p] = p
     cmd = ['dpkg-query', '-W', '-f=\'${Package} ${Status}\n\'']
-    cmd.extend(version_lock_map.keys())
+    pkg_keys = list(version_lock_map.keys())
+    cmd.extend(pkg_keys)
 
     if exec_fn is None:
         exec_fn = read_stdout
@@ -180,7 +181,7 @@ def dpkg_detect(pkgs, exec_fn=None):
 
     # now for the remaining packages check, whether they are installed as
     # virtual packages
-    remaining = _read_apt_cache_showpkg(list(p for p in pkgs if p not in installed_packages))
+    remaining = _read_apt_cache_showpkg(list(p for p in pkg_keys if p not in installed_packages))
     virtual = [n for (n, v, pr) in remaining if v and len(dpkg_detect(pr)) > 0]
 
     return installed_packages + virtual
